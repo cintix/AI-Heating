@@ -8,7 +8,17 @@
 </head>
 <body>
     <h1>Smart Home Automation</h1>
-    <p>Activation Pattern: <span id="patternValue"></span></p>
+    
+    <p>Schedule Pattern: <span id="patternValue"></span></p>
+    
+    <!-- New section for system settings -->
+    <section id="system">
+        <h2>System</h2>
+        <label for="datetimePicker">Set Current Time:</label>
+        <input type="datetime-local" id="datetimePicker">
+        <button id="setTimeButton">Set Time</button>
+    </section>
+
     <script src="script.js"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
 
 class LocalTime {
 private:
-    unsigned long epochTime;  // Stores the last set Unix timestamp
+    static unsigned long epochTime;  // Stores the last set Unix timestamp
     unsigned long lastMillis; // Stores the millis() value at the time of setting
 public:
     LocalTime();

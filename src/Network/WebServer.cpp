@@ -5,6 +5,7 @@
 #include <LittleFS.h>
 #include <FS.h>
 #include "WebServer.h"
+#include <Time/LocalTime.h>
 
 WebServer::WebServer() : server(80) {}
 
@@ -66,8 +67,26 @@ void WebServer::handleAPI(AsyncWebServerRequest *request) {
 
 void WebServer::handleSetTime(AsyncWebServerRequest *request) {
     if (request->hasArg("timestamp")) {
+        LocalTime localTime;
+        const char* weekdayNames[] = {
+            "Monday",    // 0
+            "Tuesday",   // 1
+            "Wednesday", // 2
+            "Thursday",  // 3
+            "Friday",    // 4
+            "Saturday",  // 5
+            "Sunday"     // 6
+          };
+          
         unsigned long timestamp = request->arg("timestamp").toInt();  // Get the Unix timestamp
-        Serial.println("Time set to Unix timestamp: " + String(timestamp));
+        localTime.setTime(timestamp);
+
+        Serial.print("Today is ");
+        Serial.println(weekdayNames[localTime.getDayOfWeek()]);
+      
+        Serial.print("Current hour is ");
+        Serial.println(localTime.getHour());
+
         request->send(200, "application/json", "{\"status\":\"success\"}");
     } else {
         request->send(400, "application/json", "{\"status\":\"error\", \"message\":\"Missing timestamp parameter\"}");

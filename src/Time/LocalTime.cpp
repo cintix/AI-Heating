@@ -1,6 +1,8 @@
 #include "LocalTime.h"
 
-LocalTime::LocalTime() : epochTime(0), lastMillis(0) {}
+unsigned long LocalTime::epochTime = 0; // Initialize static variable
+
+LocalTime::LocalTime() : lastMillis(0) {}
 
 void LocalTime::setTime(unsigned long unixTimestamp) {
     // CET is UTC+1, so add 1 hour (3600 seconds)
