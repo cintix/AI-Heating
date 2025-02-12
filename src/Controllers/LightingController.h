@@ -7,6 +7,7 @@ private:
 public:
     LightingController(int pin);
     void activate();
+    void deactivate();
 };
 
 #endif
