@@ -35,15 +35,13 @@ void setup()
   webServer.init();
   timeManager.init(); 
 
-  localTime.setTime(1739540013L);
+  localTime.setTime(1739370813L);
   
   Serial.print("Today is ");
   Serial.println(weekdayNames[localTime.getDayOfWeek()]);
 
   Serial.print("Current hour is ");
   Serial.println(localTime.getHour());
-
-
 }
 
 void loop()
