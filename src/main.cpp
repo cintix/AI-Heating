@@ -1,18 +1,20 @@
 #include <Arduino.h>
-#include <WebServer.h>
-#include <TimeManager.h>
-#include <LightingController.h>
-#include <HeatingController.h>
+#include <Network/WebServer.h>
+#include <Time/TimeManager.h>
+#include <Controllers/LightingController.h>
+#include <Controllers/HeatingController.h>
+#include <Sensors/DetectionSensor.h>
 
 int lightControllerPin = 15;
 int heatingControllerPin = 13;
 int detectionSensorPin = 16;
+int detectionCoolDownInSeconds = 3;
 
 WebServer webServer;
 TimeManager timeManager;
 HeatingController heatingController(heatingControllerPin);
 LightingController lightController(lightControllerPin);
-
+DetectionSensor detectionSensor(detectionSensorPin, detectionCoolDownInSeconds);
 
 void setup()
 {
@@ -21,15 +23,9 @@ void setup()
   webServer.init();
   timeManager.init(); 
 
-  pinMode(lightControllerPin, OUTPUT);
-  pinMode(heatingControllerPin, OUTPUT);
-  pinMode(detectionSensorPin, INPUT_PULLDOWN_16);
 }
 
 void loop()
 {
   webServer.update();
-
-  
-
 }
