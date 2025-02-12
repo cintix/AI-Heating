@@ -2,13 +2,13 @@
 #include <Arduino.h>
 
 DetectionSensor::DetectionSensor(int pin, int cooldown) : pin(pin), cooldown(cooldown), lastActivationTime(0) {
-    pinMode(pin, INPUT_PULLDOWN_16);
+    pinMode(pin, INPUT_PULLUP);
 }
 
 bool DetectionSensor::activated() {
     unsigned long currentTime = millis();
     
-    if (digitalRead(pin) == HIGH && (currentTime - lastActivationTime) >= (cooldown * 1000)) {
+    if (digitalRead(pin) == LOW && (currentTime - lastActivationTime) >= (cooldown * 1000)) {
         lastActivationTime = currentTime;
         return true;
     }

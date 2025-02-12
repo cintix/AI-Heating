@@ -7,8 +7,14 @@ HeatingController::HeatingController(int pin) : pin(pin) {
 
 void HeatingController::activate() {
     digitalWrite(pin, HIGH);
+    activated = true;
 }
 
 void HeatingController::deactivate() {
     digitalWrite(pin, LOW);
+    activated = false;
+}
+
+bool HeatingController::isActive() {
+    return activated;
 }

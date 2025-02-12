@@ -8,15 +8,15 @@
 
 int lightControllerPin = 15;
 int heatingControllerPin = 13;
-int detectionSensorPin = 16;
+int detectionSensorPin = 5;
 int detectionCoolDownInSeconds = 3;
 
 WebServer webServer;
 TimeManager timeManager;
 HeatingController heatingController(heatingControllerPin);
 LightingController lightController(lightControllerPin);
-DetectionSensor detectionSensor(detectionSensorPin, detectionCoolDownInSeconds);
 LocalTime localTime;
+DetectionSensor detectionSensor(detectionSensorPin, detectionCoolDownInSeconds);
 
 const char* weekdayNames[] = {
   "Monday",    // 0
@@ -42,9 +42,22 @@ void setup()
 
   Serial.print("Current hour is ");
   Serial.println(localTime.getHour());
+
 }
 
 void loop()
 {
   webServer.update();
+
+  if (detectionSensor.activated()) {
+
+    Serial.print("Detection at [");
+    Serial.print(localTime.getFormattedTime());
+    Serial.println("]");
+
+    if (!lightController.isActive()) lightController.activate();
+    if (!heatingController.isActive()) heatingController.activate();
+
+  }
+
 }

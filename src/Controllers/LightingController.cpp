@@ -7,8 +7,14 @@ LightingController::LightingController(int pin) : pin(pin) {
 
 void LightingController::activate() {
     digitalWrite(pin, HIGH);
+    activated = true;
 }
 
 void LightingController::deactivate() {
     digitalWrite(pin, LOW);
+    activated = false;
+}
+
+bool LightingController::isActive() {
+    return activated;
 }

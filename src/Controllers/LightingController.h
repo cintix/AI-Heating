@@ -4,10 +4,12 @@
 class LightingController {
 private:
     int pin;
+    bool activated;
 public:
     LightingController(int pin);
     void activate();
     void deactivate();
+    bool isActive();
 };
 
 #endif
