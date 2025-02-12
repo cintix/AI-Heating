@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <WebServer.h>
 #include <TimeManager.h>
+#include <LightingController.h>
+#include <HeatingController.h>
 
 int lightControllerPin = 15;
 int heatingControllerPin = 13;
@@ -8,6 +10,9 @@ int detectionSensorPin = 16;
 
 WebServer webServer;
 TimeManager timeManager;
+HeatingController heatingController(heatingControllerPin);
+LightingController lightController(lightControllerPin);
+
 
 void setup()
 {

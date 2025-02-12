@@ -9,19 +9,12 @@
 WebServer::WebServer() : server(80) {}
 
 void WebServer::init() {
+    
     if (!LittleFS.begin()) {
         Serial.println("LittleFS Mount Failed");
         return;
     }
-    delay(1000);  // Allow filesystem to settle
-    // Debug: List all files in LittleFS
-    Serial.println("Listing files in LittleFS:");
-    Dir dir = LittleFS.openDir("/");
-    while (dir.next()) {
-        Serial.print("File: ");
-        Serial.println(dir.fileName());
-    }
-
+ 
     localIP = IPAddress(192, 168, 4, 1);   // Local IP for the AP
     gateway = IPAddress(192, 168, 4, 1);   // Gateway is the same as local IP
     subnet = IPAddress(255, 255, 255, 0);  // Subnet mask
