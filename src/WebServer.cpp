@@ -1,13 +1,15 @@
-#include "WebServer.h"
+#include <ESP8266WiFi.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <DNSServer.h>
 #include <LittleFS.h>
+#include <FS.h>
+#include "WebServer.h"
 
 WebServer::WebServer() : server(80) {}
 
-void WebServer::init()
-{
-
-    if (!LittleFS.begin())
-    {
+void WebServer::init() {
+    if (!LittleFS.begin()) {
         Serial.println("LittleFS Mount Failed");
         return;
     }
@@ -15,15 +17,14 @@ void WebServer::init()
     // Debug: List all files in LittleFS
     Serial.println("Listing files in LittleFS:");
     Dir dir = LittleFS.openDir("/");
-    while (dir.next())
-    {
+    while (dir.next()) {
         Serial.print("File: ");
         Serial.println(dir.fileName());
     }
 
-    localIP = IPAddress(192, 168, 4, 1);  // Local IP for the AP
-    gateway = IPAddress(192, 168, 4, 1);  // Gateway is the same as local IP
-    subnet = IPAddress(255, 255, 255, 0); // Subnet mask
+    localIP = IPAddress(192, 168, 4, 1);   // Local IP for the AP
+    gateway = IPAddress(192, 168, 4, 1);   // Gateway is the same as local IP
+    subnet = IPAddress(255, 255, 255, 0);  // Subnet mask
 
     // Start the Access Point
     WiFi.softAP(ssid, password);
@@ -36,85 +37,46 @@ void WebServer::init()
     // Start DNS server for captive portal
     dnsServer.start(DNS_PORT, "*", localIP);
 
-    server.on("/", HTTP_GET, [this]()
-              { serveFile("/index.html"); });
-    server.on("/style.css", HTTP_GET, [this]()
-              { serveFile("/style.css"); });
-    server.on("/script.js", HTTP_GET, [this]()
-              { serveFile("/script.js"); });
-    server.on("/api/schedule", HTTP_GET, [this]()
-              { handleAPI(); });
+    // Register routes
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) { 
+        request->send(LittleFS, "/index.html", "text/html"); 
+    });
+
+    server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) { 
+        request->send(LittleFS, "/style.css", "text/css"); 
+    });
+
+    server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request) { 
+        request->send(LittleFS, "/script.js", "application/javascript"); 
+    });
+
+    server.on("/api/schedule", HTTP_GET, [this](AsyncWebServerRequest *request) { 
+        handleAPI(request); 
+    });
+
+    // Add endpoint for setting time
+    server.on("/api/settime", HTTP_GET, [this](AsyncWebServerRequest *request) { 
+        handleSetTime(request); 
+    });
+
     server.begin();
 }
 
-void WebServer::handleClient()
-{
-    server.handleClient();
+void WebServer::update() { 
+    dnsServer.processNextRequest(); 
 }
 
-void WebServer::update()
-{
-    dnsServer.processNextRequest();
-    server.handleClient();
-}
-
-void WebServer::serveFile(const String &path)
-{
-    Serial.print("Serving file: ");
-    Serial.println(path);
-
-    File file = LittleFS.open(path, "r");
-    if (!file)
-    {
-        server.send(404, "text/plain", "File not found");
-        return;
-    }
-    String mimeType = "text/plain"; // Default MIME type
-
-    if (path.endsWith(".html"))
-    {
-        mimeType = "text/html";
-    }
-    else if (path.endsWith(".css"))
-    {
-        mimeType = "text/css";
-    }
-    else if (path.endsWith(".js"))
-    {
-        mimeType = "application/javascript";
-    }
-
-    server.streamFile(file, mimeType);
-    file.close();
-}
-
-void WebServer::handleAPI()
-{
+void WebServer::handleAPI(AsyncWebServerRequest *request) {
     String json = "{\"schedule\": {\"day\": 1, \"hour\": 12, \"value\": 0.5}}";
-    server.send(200, "application/json", json);
+    request->send(200, "application/json", json);
 }
 
-void WebServer::handleSetTime()
-{
-    if (server.hasArg("timestamp"))
-    {
-        unsigned long timestamp = server.arg("timestamp").toInt(); // Get the Unix timestamp
-
-        // Calculate the number of milliseconds from the timestamp
-        unsigned long currentMillis = millis();
-
-        // Set the system time offset based on the Unix timestamp and current millis
-        //  systemTimeOffset = currentMillis - timestamp;
-
-        // Optionally save the timestamp to LittleFS for future reference
-        // saveToFile();
-
+void WebServer::handleSetTime(AsyncWebServerRequest *request) {
+    if (request->hasArg("timestamp")) {
+        unsigned long timestamp = request->arg("timestamp").toInt();  // Get the Unix timestamp
         Serial.println("Time set to Unix timestamp: " + String(timestamp));
-
-        server.send(200, "application/json", "{\"status\":\"success\"}");
-    }
-    else
-    {
-        server.send(400, "application/json", "{\"status\":\"error\", \"message\":\"Missing timestamp parameter\"}");
+        request->send(200, "application/json", "{\"status\":\"success\"}");
+    } else {
+        request->send(400, "application/json", "{\"status\":\"error\", \"message\":\"Missing timestamp parameter\"}");
     }
 }
