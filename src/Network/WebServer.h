@@ -11,6 +11,7 @@
 #include <DNSServer.h>
 #include <LittleFS.h>
 #include <FS.h>
+#include <ArduinoJson.h>
 
 
 class WebServer

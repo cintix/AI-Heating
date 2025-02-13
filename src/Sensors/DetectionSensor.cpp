@@ -10,10 +10,19 @@ bool DetectionSensor::activated() {
     
     if (digitalRead(pin) == LOW && (currentTime - lastActivationTime) >= (cooldown * 1000)) {
         lastActivationTime = currentTime;
+        waitingForCoolDown = true;
         return true;
     }
     
     return false;
+}
+
+bool DetectionSensor::isOnCooldown() {
+    unsigned long currentTime = millis();
+    if ((currentTime - lastActivationTime) >= (cooldown * 1000) && waitingForCoolDown) {
+        waitingForCoolDown = false;
+    }
+    return waitingForCoolDown;
 }
 
 void DetectionSensor::setCooldown(int cooldown) {

@@ -9,7 +9,7 @@
 int lightControllerPin = 15;
 int heatingControllerPin = 13;
 int detectionSensorPin = 5;
-int detectionCoolDownInSeconds = 3;
+int detectionCoolDownInSeconds = 10;
 
 WebServer webServer;
 TimeManager timeManager;
@@ -58,6 +58,14 @@ void loop()
     if (!lightController.isActive()) lightController.activate();
     if (!heatingController.isActive()) heatingController.activate();
 
+    timeManager.updateSchedule(localTime.getDayOfWeek(), localTime.getHour());
   }
+
+
+  if (!detectionSensor.isOnCooldown()) {
+    if (lightController.isActive()) lightController.deactivate();
+    if (heatingController.isActive()) heatingController.deactivate();
+  }
+  
 
 }

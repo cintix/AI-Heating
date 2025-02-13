@@ -1,69 +1,89 @@
 #include "TimeManager.h"
+#include <ArduinoJson.h>
+#include <LittleFS.h>
+
+#define FILE_PATH "/time.json"
+#define MAX_VALUE 10.0f
+#define DECAY_FACTOR 0.98f
+
+// Static variable definition
+float TimeManager::schedule[7][24];
 
 void TimeManager::init() {
     for (int i = 0; i < 7; i++) {
         for (int j = 0; j < 24; j++) {
-            schedule[i][j] = 0;
+            schedule[i][j] = 0.0f;
         }
     }
     
-    loadFromFile(); // Load time and patterns from LittleFS if available
+    loadFromFile();
 }
 
-void TimeManager::updatePattern(int day, int hour) {
-    schedule[day][hour] = (ALPHA * 1) + ((1 - ALPHA) * schedule[day][hour]);
+void TimeManager::updateSchedule(int day, int hour) {
+    schedule[day][hour] += ALPHA;
+
+    if (schedule[day][hour] > MAX_VALUE) {
+        schedule[day][hour] = MAX_VALUE;
+        
+        for (int j = 0; j < 24; j++) {
+            if (j != hour) {
+                schedule[day][j] *= DECAY_FACTOR;
+            }
+        }
+    }
+
+    saveToFile();
 }
 
-float TimeManager::getActivationPattern(int day, int hour) {
+float TimeManager::getActivationSchedule(int day, int hour) {
     return schedule[day][hour];
 }
 
-void TimeManager::setTime(int year, int month, int day, int hour, int minute) {
-    currentYear = year;
-    currentMonth = month;
-    currentDay = day;
-    currentHour = hour;
-    currentMinute = minute;
-    saveToFile();  // Save the new time to LittleFS
-}
-
-String TimeManager::getTimeAsString() {
-    String timeString = String(currentYear) + "-" + String(currentMonth) + "-" + String(currentDay) + " " +
-                        String(currentHour) + ":" + String(currentMinute);
-    return timeString;
-}
-
 void TimeManager::saveToFile() {
-    File file = LittleFS.open("/time.json", "w");
-    if (file) {
-        file.print("{\"year\":");
-        file.print(currentYear);
-        file.print(", \"month\":");
-        file.print(currentMonth);
-        file.print(", \"day\":");
-        file.print(currentDay);
-        file.print(", \"hour\":");
-        file.print(currentHour);
-        file.print(", \"minute\":");
-        file.print(currentMinute);
-        file.print("}");
-        file.close();
+    File file = LittleFS.open(FILE_PATH, "w");
+    if (!file) {
+        Serial.println("Failed to open file for writing");
+        return;
     }
+
+    JsonDocument doc;
+    
+    for (int i = 0; i < 7; i++) {
+        JsonArray dayArray = doc.createNestedArray(String(i));
+        for (int j = 0; j < 24; j++) {
+            dayArray.add(schedule[i][j]);
+        }
+    }
+
+    if (serializeJson(doc, file) == 0) {
+        Serial.println("Failed to write to file");
+    }
+    
+    file.close();
 }
 
 void TimeManager::loadFromFile() {
-    File file = LittleFS.open("/time.json", "r");
-    if (file) {
-        String content = file.readString();
-        JsonDocument doc;
-        deserializeJson(doc, content);
-        
-        currentYear = doc["year"];
-        currentMonth = doc["month"];
-        currentDay = doc["day"];
-        currentHour = doc["hour"];
-        currentMinute = doc["minute"];
-        
-        file.close();
+    File file = LittleFS.open(FILE_PATH, "r");
+    if (!file) {
+        Serial.println("No existing schedule file found.");
+        return;
     }
+
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, file);
+    if (error) {
+        Serial.println("Failed to read JSON from file");
+        return;
+    }
+
+    for (int i = 0; i < 7; i++) {
+        JsonArray dayArray = doc[String(i)];
+        if (!dayArray.isNull()) {
+            for (int j = 0; j < 24; j++) {
+                schedule[i][j] = dayArray[j].as<float>();
+            }
+        }
+    }
+
+    file.close();
 }

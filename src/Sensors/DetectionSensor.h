@@ -8,9 +8,11 @@ private:
     int pin;
     int cooldown;
     unsigned long lastActivationTime;
+    bool waitingForCoolDown;
 public:
     DetectionSensor(int pin, int cooldown);
     bool activated();
+    bool isOnCooldown();
     void setCooldown(int cooldown);
 };
 

@@ -10,7 +10,7 @@ h1 {
     font-weight: bold;
 }
 
-#system {
+#system, #schedule {
     margin-top: 20px;
 }
 
@@ -31,4 +31,31 @@ h1 {
 
 #setTimeButton:hover {
     background-color: #45a049;
+}
+
+/* Schedule Table Styling */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.highlight {
+    background-color: #ffcc00 !important;
+    font-weight: bold;
 }

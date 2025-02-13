@@ -7,18 +7,15 @@
 
 class TimeManager {
 public:
-    void init();
-    void updatePattern(int day, int hour);
-    float getActivationPattern(int day, int hour);
-    void setTime(int year, int month, int day, int hour, int minute);
-    String getTimeAsString();
-    void saveToFile();
-    void loadFromFile();
+    static void init();
+    static void updateSchedule(int day, int hour);
+    static float getActivationSchedule(int day, int hour);
+    static void saveToFile();
+    static void loadFromFile();
 
 private:
-    float schedule[7][24];  // 7 days x 24 hours
-    const float ALPHA = 0.1;
-    int currentYear, currentMonth, currentDay, currentHour, currentMinute;
+    static float schedule[7][24];  // 7 days x 24 hours
+    static constexpr float ALPHA = 0.3;
 };
 
 #endif
