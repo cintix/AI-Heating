@@ -6,18 +6,21 @@
 #include <Controllers/HeatingController.h>
 #include <Sensors/DetectionSensor.h>
 
+// Pin assignments for controllers and sensors
 int lightControllerPin = 15;
 int heatingControllerPin = 13;
 int detectionSensorPin = 5;
 int detectionCoolDownInSeconds = 10;
 
-WebServer webServer;
-TimeManager timeManager;
-HeatingController heatingController(heatingControllerPin);
-LightingController lightController(lightControllerPin);
-LocalTime localTime;
-DetectionSensor detectionSensor(detectionSensorPin, detectionCoolDownInSeconds);
+// Initialize the objects
+WebServer webServer;  // Web server for handling HTTP requests
+TimeManager timeManager;  // Manages scheduling data
+HeatingController heatingController(heatingControllerPin);  // Heating controller
+LightingController lightController(lightControllerPin);  // Lighting controller
+LocalTime localTime;  // Local time management
+DetectionSensor detectionSensor(detectionSensorPin, detectionCoolDownInSeconds);  // Sensor for detecting activity
 
+// Weekday names for displaying the current day of the week
 const char *weekdayNames[] = {
     "Monday",    // 0
     "Tuesday",   // 1
@@ -30,13 +33,16 @@ const char *weekdayNames[] = {
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(9600);  // Initialize serial communication
 
+  // Initialize web server and time manager
   webServer.init();
   timeManager.init();
 
+  // Set the time using a Unix timestamp (example value)
   localTime.setTime(1739370813L);
 
+  // Output current time, day, and hour to serial monitor
   Serial.print("Current time: ");
   Serial.println(localTime.getFormattedTime());
 
@@ -52,27 +58,32 @@ void setup()
 
 void loop()
 {
-  webServer.update();
+  webServer.update();  // Handle web server requests
 
+  // Check if the detection sensor is activated
   if (detectionSensor.activated())
   {
-
+    // Print detection time and activate necessary controllers
     Serial.print("Detection at [");
     Serial.print(localTime.getFormattedTime());
     Serial.println("]");
 
+    // Activate light and heating if they are not already active
     if (!lightController.isActive())   lightController.activate();
     if (!heatingController.isActive()) heatingController.activate();
 
+    // Update the usage schedule based on the current time and detected activity
     timeManager.updateSchedule(localTime.getDayOfWeek(), localTime.getHour());
   }
 
+  // If the detection sensor is not in cooldown, deactivate controllers
   if (!detectionSensor.isOnCooldown())
   {
     if (lightController.isActive())   lightController.deactivate();
     if (heatingController.isActive()) heatingController.deactivate();
   }
 
+  // Check if the next hour (in 30 minutes) should activate the heating system
   if (timeManager.getActivationHour(localTime.getDayOfWeek()) == localTime.getNextHourFrom(30))
   {
     if (!heatingController.isActive()) heatingController.activate();
