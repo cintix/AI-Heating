@@ -25,7 +25,7 @@ public:
 private:
     // Network credentials for the Access Point (AP) mode
     const char *ssid = "AI Heating";      // SSID (Network Name) for the AP
-    const char *password = "ec2remember"; // Password for the AP
+    const char *password = "12345678"; // Password for the AP
     const byte DNS_PORT = 53;             // DNS port for captive portal (typically 53)
 
     // Web server and DNS server objects
