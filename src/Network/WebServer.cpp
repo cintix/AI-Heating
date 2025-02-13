@@ -17,10 +17,9 @@ void WebServer::init()
     if (!LittleFS.begin())
     {
         Serial.println("LittleFS Mount Failed");
-        return;  // Exit if filesystem mount fails
+        return; 
     }
 
-    // Set IP address, gateway, and subnet mask for the access point (AP)
     localIP = IPAddress(192, 168, 4, 1);  // Local IP for AP
     gateway = IPAddress(192, 168, 4, 1);  // Gateway IP (same as local IP)
     subnet = IPAddress(255, 255, 255, 0); // Subnet mask
@@ -39,13 +38,13 @@ void WebServer::init()
 
     // Register the routes (URLs) for the web server
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/index.html", "text/html"); }); // Serve the index.html
+              { request->send(LittleFS, "/index.html", "text/html"); }); 
 
     server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/style.css", "text/css"); }); // Serve the CSS file
+              { request->send(LittleFS, "/style.css", "text/css"); }); 
 
     server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/script.js", "application/javascript"); }); // Serve the JS file
+              { request->send(LittleFS, "/script.js", "application/javascript"); });
 
     // Handle API request for schedule data
     server.on("/api/schedule", HTTP_GET, [this](AsyncWebServerRequest *request)
@@ -66,14 +65,14 @@ void WebServer::update()
 // Function to handle the API request for getting the schedule
 void WebServer::handleAPI(AsyncWebServerRequest *request)
 {
-    TimeManager timeManager;      // Create an instance of TimeManager
-    JsonDocument doc;             // JSON document for response
-    JsonObject scheduleObj = doc["schedule"].to<JsonObject>(); // Create the 'schedule' object in JSON
+    TimeManager timeManager; 
+    JsonDocument doc; 
+    JsonObject scheduleObj = doc["schedule"].to<JsonObject>();
 
     // Loop through days (0 to 6) and hours (0 to 23)
     for (int day = 0; day < 7; day++)
     {
-        JsonObject dayObj = scheduleObj[String(day)].to<JsonObject>(); // Create JSON object for each day
+        JsonObject dayObj = scheduleObj[String(day)].to<JsonObject>(); 
         for (int hour = 0; hour < 24; hour++)
         {
             // Populate the schedule with activation times for each hour of each day
@@ -104,7 +103,7 @@ void WebServer::handleSetTime(AsyncWebServerRequest *request)
 
         // Retrieve the Unix timestamp from the request
         unsigned long timestamp = request->arg("timestamp").toInt();
-        localTime.setTime(timestamp); // Set the local time using the timestamp
+        localTime.setTime(timestamp);
 
         // Print the day of the week and the current hour to the Serial Monitor
         Serial.print("Today is ");

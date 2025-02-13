@@ -71,7 +71,6 @@ void TimeManager::saveToFile() {
         return;
     }
 
-    // Create a JSON document to store the schedule
     JsonDocument doc;
     
     // Add each day's schedule to the JSON document
