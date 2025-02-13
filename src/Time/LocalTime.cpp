@@ -25,6 +25,13 @@ int LocalTime::getDayOfWeek()
     return ((currentTime / 86400L) + 3) % 7; // Adjust to make Monday = 0, Sunday = 6
 }
 
+int LocalTime::getNextHourFrom(int minutes) {
+    unsigned long elapsedSeconds = (millis() - lastMillis) / 1000;
+    unsigned long addMinutes = 60 * minutes;
+    unsigned long currentTime = epochTime + elapsedSeconds + addMinutes;
+    return (currentTime % 86400L) / 3600; // Extract hour (0-23) from Unix timestamp
+}
+
 String LocalTime::getFormattedTime()
 {
     unsigned long elapsedSeconds = (millis() - lastMillis) / 1000;

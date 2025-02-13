@@ -12,6 +12,7 @@ public:
     void setTime(unsigned long unixTimestamp);
     int getHour();
     int getDayOfWeek();
+    int getNextHourFrom(int minuts);
     String getFormattedTime();
 };
 

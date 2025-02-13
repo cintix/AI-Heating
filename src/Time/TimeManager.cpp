@@ -39,6 +39,19 @@ float TimeManager::getActivationSchedule(int day, int hour) {
     return schedule[day][hour];
 }
 
+int TimeManager::getActivationHour(int day) {
+    int selectedIndex = -1;
+    int maxValue = 0;
+
+    for(int index = 0; index < 24; index++) {
+        if (schedule[day][index] > maxValue)     {
+            selectedIndex = index;
+            maxValue = schedule[day][index];
+        }
+    }
+    return selectedIndex;
+}
+
 void TimeManager::saveToFile() {
     File file = LittleFS.open(FILE_PATH, "w");
     if (!file) {

@@ -18,14 +18,14 @@ LightingController lightController(lightControllerPin);
 LocalTime localTime;
 DetectionSensor detectionSensor(detectionSensorPin, detectionCoolDownInSeconds);
 
-const char* weekdayNames[] = {
-  "Monday",    // 0
-  "Tuesday",   // 1
-  "Wednesday", // 2
-  "Thursday",  // 3
-  "Friday",    // 4
-  "Saturday",  // 5
-  "Sunday"     // 6
+const char *weekdayNames[] = {
+    "Monday",    // 0
+    "Tuesday",   // 1
+    "Wednesday", // 2
+    "Thursday",  // 3
+    "Friday",    // 4
+    "Saturday",  // 5
+    "Sunday"     // 6
 };
 
 void setup()
@@ -33,39 +33,48 @@ void setup()
   Serial.begin(9600);
 
   webServer.init();
-  timeManager.init(); 
+  timeManager.init();
 
   localTime.setTime(1739370813L);
-  
+
+  Serial.print("Current time: ");
+  Serial.println(localTime.getFormattedTime());
+
   Serial.print("Today is ");
   Serial.println(weekdayNames[localTime.getDayOfWeek()]);
 
   Serial.print("Current hour is ");
   Serial.println(localTime.getHour());
 
+  Serial.print("Upcoming hour in 30 min is ");
+  Serial.println(localTime.getNextHourFrom(30));
 }
 
 void loop()
 {
   webServer.update();
 
-  if (detectionSensor.activated()) {
+  if (detectionSensor.activated())
+  {
 
     Serial.print("Detection at [");
     Serial.print(localTime.getFormattedTime());
     Serial.println("]");
 
-    if (!lightController.isActive()) lightController.activate();
+    if (!lightController.isActive())   lightController.activate();
     if (!heatingController.isActive()) heatingController.activate();
 
     timeManager.updateSchedule(localTime.getDayOfWeek(), localTime.getHour());
   }
 
-
-  if (!detectionSensor.isOnCooldown()) {
-    if (lightController.isActive()) lightController.deactivate();
+  if (!detectionSensor.isOnCooldown())
+  {
+    if (lightController.isActive())   lightController.deactivate();
     if (heatingController.isActive()) heatingController.deactivate();
   }
-  
 
+  if (timeManager.getActivationHour(localTime.getDayOfWeek()) == localTime.getNextHourFrom(30))
+  {
+    if (!heatingController.isActive()) heatingController.activate();
+  }
 }

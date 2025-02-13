@@ -12,7 +12,7 @@ public:
     static float getActivationSchedule(int day, int hour);
     static void saveToFile();
     static void loadFromFile();
-
+    static int getActivationHour(int day);
 private:
     static float schedule[7][24];  // 7 days x 24 hours
     static constexpr float ALPHA = 0.3;
