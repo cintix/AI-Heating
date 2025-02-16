@@ -58,3 +58,4 @@ This file holds the activation schedule for the system and is updated each time 
 ## Future Improvements
 - Add more sensors (e.g., temperature sensors) for more advanced automation.
 - Expand the web interface with additional features such as remote control or detailed analytics.
+- Show cheapest price using API to lookup prices for WATT https://www.elprisenligenu.dk/api/v1/prices/2025/02-16_DK2.json
