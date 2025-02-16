@@ -91,23 +91,12 @@ void WebServer::handleSetTime(AsyncWebServerRequest *request)
     if (request->hasArg("timestamp")) // Check if the 'timestamp' argument is provided
     {
         LocalTime localTime; // LocalTime object to manage time
-        const char *weekdayNames[] = {
-            "Monday",    // 0
-            "Tuesday",   // 1
-            "Wednesday", // 2
-            "Thursday",  // 3
-            "Friday",    // 4
-            "Saturday",  // 5
-            "Sunday"     // 6
-        };
 
         // Retrieve the Unix timestamp from the request
         unsigned long timestamp = request->arg("timestamp").toInt();
         localTime.setTime(timestamp);
 
-        // Print the day of the week and the current hour to the Serial Monitor
-        Serial.print("Today is ");
-        Serial.println(weekdayNames[localTime.getDayOfWeek()]);
+        // Print current hour to the Serial Monitor
         Serial.print("Current hour is ");
         Serial.println(localTime.getHour());
 
